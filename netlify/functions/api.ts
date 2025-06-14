@@ -6,15 +6,28 @@ import serverless from 'serverless-http';
 // Create Express app
 const app = express();
 
-// Add JSON parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Add JSON parsing middleware with increased limit for AI content
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Add CORS middleware
+// Add comprehensive CORS middleware
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'https://astonishing-gelato-055adf.netlify.app',
+    'http://localhost:5000',
+    'http://localhost:3000'
+  ];
+  
+  if (allowedOrigins.includes(origin as string)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
+  
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
   
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);
@@ -22,6 +35,11 @@ app.use((req, res, next) => {
     next();
   }
 });
+
+// Environment setup for Netlify
+if (!process.env.NODE_ENV) {
+  process.env.NODE_ENV = 'production';
+}
 
 // Register all routes
 registerRoutes(app);

@@ -9,7 +9,7 @@ execSync('vite build', { stdio: 'inherit' });
 
 // Build Netlify functions
 console.log('Building Netlify functions...');
-execSync('esbuild netlify/functions/api.ts --platform=node --packages=external --bundle --format=esm --outdir=netlify/functions --external:@netlify/functions', { stdio: 'inherit' });
+execSync('esbuild netlify/functions/api.ts --platform=node --packages=external --bundle --format=esm --outdir=netlify/functions --external:@netlify/functions --external:pg-native --external:cpu-features --external:@mapbox/node-pre-gyp', { stdio: 'inherit' });
 
 // Copy _redirects to publish directory
 const redirects = `/api/* /.netlify/functions/api/:splat 200

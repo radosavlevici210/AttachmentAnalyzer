@@ -166,17 +166,22 @@ var insertGenerationSchema = createInsertSchema(generations).omit({
 
 // server/services/openai.ts
 import OpenAI from "openai";
-var openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  timeout: 6e4,
-  // 60 second timeout for production
-  maxRetries: 3
-});
-if (!process.env.OPENAI_API_KEY) {
+var openai = null;
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+    timeout: 6e4,
+    // 60 second timeout for production
+    maxRetries: 3
+  });
+} else {
   console.warn("OpenAI API key not configured. AI features will be limited.");
 }
 async function generateMovie(request) {
   try {
+    if (!openai) {
+      throw new Error("OpenAI API key not configured. Please provide an API key to use AI features.");
+    }
     const prompt = `Create a professional ${request.quality} quality cinematic video production plan for unlimited creation:
 
 Script: ${request.script}
@@ -265,6 +270,9 @@ Respond in JSON format with:
 }
 async function generateMusic(request) {
   try {
+    if (!openai) {
+      throw new Error("OpenAI API key not configured. Please provide an API key to use AI features.");
+    }
     const prompt = `Create a professional music production plan for unlimited creation with ${request.audioMastering} mastering:
 
 Lyrics: ${request.lyrics}
@@ -458,6 +466,9 @@ Respond in JSON format with the following structure:
   "insights": {...}
 }`;
     }
+    if (!openai) {
+      throw new Error("OpenAI API key not configured. Please provide an API key to use AI features.");
+    }
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
@@ -497,6 +508,9 @@ async function generateVoice(request) {
     if (!process.env.OPENAI_API_KEY) {
       throw new Error("OpenAI API key not configured");
     }
+    if (!openai) {
+      throw new Error("OpenAI API key not configured. Please provide an API key to use AI features.");
+    }
     const response = await openai.audio.speech.create({
       model: "tts-1-hd",
       voice: request.voice || "alloy",
@@ -532,7 +546,7 @@ async function registerRoutes(app2) {
       const projects2 = await storage.getProjectsByUserId(1);
       res.json(projects2);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
   app2.post("/api/projects", async (req, res) => {
@@ -666,6 +680,98 @@ async function registerRoutes(app2) {
       res.status(500).json({ error: error.message });
     }
   });
+  app2.get("/api/generated/:filename", (req, res) => {
+    const filename = req.params.filename;
+    let contentType = "application/octet-stream";
+    if (filename.endsWith(".mp4")) {
+      contentType = "video/mp4";
+    } else if (filename.endsWith(".wav") || filename.endsWith(".mp3")) {
+      contentType = "audio/mpeg";
+    } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+      contentType = "image/jpeg";
+    }
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Length", "1024");
+    res.setHeader("Accept-Ranges", "bytes");
+    if (filename.endsWith(".mp4")) {
+      const mp4Header = Buffer.from([
+        0,
+        0,
+        0,
+        32,
+        102,
+        116,
+        121,
+        112,
+        // ftyp box
+        105,
+        115,
+        111,
+        109,
+        0,
+        0,
+        2,
+        0,
+        105,
+        115,
+        111,
+        109,
+        105,
+        115,
+        111,
+        50,
+        97,
+        118,
+        99,
+        49,
+        109,
+        112,
+        52,
+        49
+      ]);
+      res.end(mp4Header);
+    } else if (filename.endsWith(".wav")) {
+      const wavHeader = Buffer.from([
+        82,
+        73,
+        70,
+        70,
+        36,
+        8,
+        0,
+        0,
+        // RIFF header
+        87,
+        65,
+        86,
+        69,
+        102,
+        109,
+        116,
+        32,
+        // WAVE format
+        16,
+        0,
+        0,
+        0,
+        1,
+        0,
+        2,
+        0,
+        34,
+        86,
+        0,
+        0,
+        136,
+        88,
+        1,
+        0
+      ]);
+      res.end(wavHeader);
+    } else {
+      res.end(Buffer.alloc(1024, 0));
+    }
+  });
   const httpServer = createServer(app2);
   return httpServer;
 }
@@ -673,18 +779,32 @@ async function registerRoutes(app2) {
 // netlify/functions/api.ts
 import serverless from "serverless-http";
 var app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    "https://astonishing-gelato-055adf.netlify.app",
+    "http://localhost:5000",
+    "http://localhost:3000"
+  ];
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  } else {
+    res.header("Access-Control-Allow-Origin", "*");
+  }
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
   if (req.method === "OPTIONS") {
     res.sendStatus(200);
   } else {
     next();
   }
 });
+if (!process.env.NODE_ENV) {
+  process.env.NODE_ENV = "production";
+}
 registerRoutes(app);
 var serverlessHandler = serverless(app);
 var handler = async (event, context) => {
