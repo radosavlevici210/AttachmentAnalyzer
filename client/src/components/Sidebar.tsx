@@ -43,6 +43,9 @@ export default function Sidebar({ projects }: SidebarProps) {
           <button className="w-full p-3 bg-card hover:bg-muted rounded-lg text-left transition-colors">
             <i className="fas fa-palette mr-2 text-neon-pink"></i>Style Transfer
           </button>
+          <button className="w-full p-3 bg-card hover:bg-muted rounded-lg text-left transition-colors">
+            <i className="fas fa-shield-alt mr-2 text-neon-purple"></i>Policy Center
+          </button>
         </div>
       </div>
 
