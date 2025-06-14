@@ -1,121 +1,257 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import Sidebar from "@/components/Sidebar";
-import RightPanel from "@/components/RightPanel";
-import MovieProduction from "@/components/MovieProduction";
-import MusicProduction from "@/components/MusicProduction";
-import AIAnalysis from "@/components/AIAnalysis";
-import VoiceGeneration from "@/components/VoiceGeneration";
-import Timeline from "@/components/ui/timeline";
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Film, Music, Mic, BarChart3, Download, Share2, Grid, Zap, Settings, Home } from 'lucide-react';
+import MovieProduction from '@/components/MovieProduction';
+import MusicProduction from '@/components/MusicProduction';
+import VoiceGeneration from '@/components/VoiceGeneration';
+import AIAnalysis from '@/components/AIAnalysis';
+import ProjectDashboard from '@/components/ProjectDashboard';
+import Timeline from '@/components/Timeline';
+import AIModelPanel from '@/components/AIModelPanel';
+import { Project } from '@/../../shared/schema';
 
 export default function Studio() {
-  const [currentProject, setCurrentProject] = useState<any>(null);
+  const [activeView, setActiveView] = useState<'dashboard' | 'production'>('dashboard');
+  const [activeTab, setActiveTab] = useState('movie');
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const { data: projects = [] } = useQuery({
-    queryKey: ["/api/projects"],
+  const { data: projects = [] } = useQuery<Project[]>({
+    queryKey: ['/api/projects'],
   });
 
+  const handleProjectSelect = (project: Project) => {
+    setSelectedProject(project);
+    setActiveView('production');
+    // Set the active tab based on project type
+    if (['movie', 'series'].includes(project.type)) {
+      setActiveTab('movie');
+    } else if (['music', 'album'].includes(project.type)) {
+      setActiveTab('music');
+    } else if (project.type === 'voice') {
+      setActiveTab('voice');
+    } else if (project.type === 'analysis') {
+      setActiveTab('analysis');
+    }
+  };
+
+  const handleCreateProject = (type: string) => {
+    setActiveTab(type);
+    setActiveView('production');
+  };
+
+  const handleModelChange = (model: string) => {
+    console.log('Model changed to:', model);
+  };
+
+  const handleQualityChange = (quality: string) => {
+    console.log('Quality changed to:', quality);
+  };
+
+  const handleGenerate = (settings: any) => {
+    setIsGenerating(true);
+    setGenerationProgress(0);
+    
+    // Simulate generation progress
+    const interval = setInterval(() => {
+      setGenerationProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsGenerating(false);
+          return 100;
+        }
+        return prev + Math.random() * 15;
+      });
+    }, 1000);
+  };
+
+  const mockTracks = [
+    {
+      id: 'video-1',
+      name: 'Main Video',
+      type: 'video' as const,
+      segments: [
+        { start: 0, end: 30, content: 'Opening Scene' },
+        { start: 30, end: 90, content: 'Main Content' },
+        { start: 90, end: 120, content: 'Closing' }
+      ]
+    },
+    {
+      id: 'audio-1',
+      name: 'Background Music',
+      type: 'audio' as const,
+      segments: [
+        { start: 0, end: 120, content: 'Cinematic Score' }
+      ]
+    },
+    {
+      id: 'subtitle-1',
+      name: 'Subtitles',
+      type: 'subtitle' as const,
+      segments: [
+        { start: 5, end: 25, content: 'Welcome to our story...' },
+        { start: 35, end: 85, content: 'The adventure begins...' }
+      ]
+    }
+  ];
+
   return (
-    <div className="bg-dark-bg text-white min-h-screen">
-      {/* Header */}
-      <header className="glass-effect border-b border-dark-border sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="text-3xl font-bold">
-                <span className="bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent">
-                  <i className="fas fa-film mr-2"></i>AI Studio Pro
-                </span>
-              </div>
-              <div className="hidden md:flex items-center space-x-6 ml-8">
-                <button className="flex items-center space-x-2 text-gray-300 hover:text-neon-green transition-colors">
-                  <i className="fas fa-video"></i>
-                  <span>Movies</span>
-                </button>
-                <button className="flex items-center space-x-2 text-gray-300 hover:text-neon-blue transition-colors">
-                  <i className="fas fa-music"></i>
-                  <span>Music</span>
-                </button>
-                <button className="flex items-center space-x-2 text-gray-300 hover:text-neon-pink transition-colors">
-                  <i className="fas fa-microphone"></i>
-                  <span>Voice</span>
-                </button>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 text-sm">
-                  <div className="status-dot bg-neon-green"></div>
-                  <span className="text-gray-400">AI Engine: Active</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm">
-                  <div className="status-dot bg-neon-blue"></div>
-                  <span className="text-gray-400">Cloud: Ready</span>
-                </div>
-              </div>
-              <button className="btn-gradient px-4 py-2 rounded-lg text-white font-medium">
-                <i className="fas fa-cloud-upload-alt mr-2"></i>Deploy
-              </button>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
+      <div className="flex h-screen">
+        {/* Navigation Sidebar */}
+        <div className="w-20 border-r border-cyan-500/20 bg-black/50 backdrop-blur-sm flex flex-col items-center py-6 space-y-6">
+          <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
+            <Zap className="w-6 h-6 text-white" />
+          </div>
+          
+          <div className="space-y-4">
+            <Button
+              variant={activeView === 'dashboard' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveView('dashboard')}
+              className={`w-12 h-12 p-0 ${activeView === 'dashboard' ? 'bg-cyan-500/20 text-cyan-400' : 'text-gray-400 hover:text-cyan-400'}`}
+            >
+              <Home className="w-5 h-5" />
+            </Button>
+            <Button
+              variant={activeView === 'production' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveView('production')}
+              className={`w-12 h-12 p-0 ${activeView === 'production' ? 'bg-cyan-500/20 text-cyan-400' : 'text-gray-400 hover:text-cyan-400'}`}
+            >
+              <Grid className="w-5 h-5" />
+            </Button>
           </div>
         </div>
-      </header>
 
-      {/* Main Layout */}
-      <main className="container mx-auto px-6 py-6">
-        <div className="production-grid">
-          {/* Sidebar */}
-          <Sidebar projects={projects} />
-
-          {/* Main Content */}
-          <section className="space-y-6 overflow-auto">
-            {/* Hero Section */}
-            <div className="glass-effect rounded-xl p-8 neon-border text-center">
-              <h1 className="text-4xl font-bold mb-4">
-                <span className="bg-gradient-to-r from-neon-green via-neon-blue to-neon-pink bg-clip-text text-transparent">
-                  Professional AI Production Studio
-                </span>
-              </h1>
-              <p className="text-gray-400 text-lg mb-6">
-                Create cinematic movies and professional music with advanced AI technology
-              </p>
-              
-              <Timeline />
-            </div>
-
-            {/* Feature Cards Grid */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <MovieProduction />
-              <MusicProduction />
-              <AIAnalysis />
-              <VoiceGeneration />
-            </div>
-          </section>
-
-          {/* Right Panel */}
-          <RightPanel />
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="glass-effect border-t border-dark-border mt-8">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex justify-between items-center text-sm text-gray-400">
-            <div className="flex items-center space-x-4">
-              <span>© 2024 AI Production Studio Pro</span>
-              <span>•</span>
-              <span>Professional Grade AI Content Creation</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="flex items-center">
-                <div className="w-2 h-2 bg-neon-green rounded-full mr-2 animate-pulse"></div>
-                System Status: Optimal
-              </span>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <div className="border-b border-cyan-500/20 bg-black/30 backdrop-blur-sm p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                  AI Studio Pro
+                </h1>
+                {selectedProject && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-400">•</span>
+                    <span className="text-white font-medium">{selectedProject.name}</span>
+                    <Badge variant="outline" className="text-cyan-400 border-cyan-400">
+                      {selectedProject.type}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center space-x-2">
+                <Badge variant="outline" className="text-cyan-400 border-cyan-400">
+                  Unlimited Creation
+                </Badge>
+                <Button variant="ghost" size="sm" className="text-cyan-400 hover:text-cyan-300">
+                  <Download className="w-4 h-4 mr-2" />
+                  Export All
+                </Button>
+                <Button variant="ghost" size="sm" className="text-cyan-400 hover:text-cyan-300">
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share
+                </Button>
+                <Button variant="ghost" size="sm" className="text-cyan-400 hover:text-cyan-300">
+                  <Settings className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
+
+          {/* Content Area */}
+          <div className="flex-1 overflow-hidden">
+            {activeView === 'dashboard' ? (
+              <div className="p-6 h-full overflow-auto">
+                <ProjectDashboard 
+                  onProjectSelect={handleProjectSelect}
+                  onCreateProject={handleCreateProject}
+                />
+              </div>
+            ) : (
+              <div className="flex h-full">
+                {/* Production Interface */}
+                <div className="flex-1 flex flex-col">
+                  {/* Production Tabs */}
+                  <div className="border-b border-cyan-500/20 bg-black/20 backdrop-blur-sm p-4">
+                    <Tabs value={activeTab} onValueChange={setActiveTab}>
+                      <TabsList className="grid w-full max-w-md grid-cols-4 bg-black/50 backdrop-blur-sm border border-cyan-500/20">
+                        <TabsTrigger value="movie" className="flex items-center space-x-2 data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
+                          <Film className="w-4 h-4" />
+                          <span className="hidden sm:inline">Movie</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="music" className="flex items-center space-x-2 data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
+                          <Music className="w-4 h-4" />
+                          <span className="hidden sm:inline">Music</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="voice" className="flex items-center space-x-2 data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
+                          <Mic className="w-4 h-4" />
+                          <span className="hidden sm:inline">Voice</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="analysis" className="flex items-center space-x-2 data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
+                          <BarChart3 className="w-4 h-4" />
+                          <span className="hidden sm:inline">Analysis</span>
+                        </TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                  </div>
+
+                  {/* Production Content */}
+                  <div className="flex-1 p-6 overflow-auto">
+                    <Tabs value={activeTab} onValueChange={setActiveTab}>
+                      <TabsContent value="movie" className="mt-0 h-full">
+                        <MovieProduction />
+                      </TabsContent>
+                      <TabsContent value="music" className="mt-0 h-full">
+                        <MusicProduction />
+                      </TabsContent>
+                      <TabsContent value="voice" className="mt-0 h-full">
+                        <VoiceGeneration />
+                      </TabsContent>
+                      <TabsContent value="analysis" className="mt-0 h-full">
+                        <AIAnalysis />
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+
+                  {/* Timeline */}
+                  <div className="border-t border-cyan-500/20 bg-black/20 backdrop-blur-sm p-4">
+                    <Timeline
+                      duration={120}
+                      currentTime={currentTime}
+                      onTimeChange={setCurrentTime}
+                      onPlay={() => setIsPlaying(true)}
+                      onPause={() => setIsPlaying(false)}
+                      isPlaying={isPlaying}
+                      tracks={mockTracks}
+                    />
+                  </div>
+                </div>
+
+                {/* AI Model Panel */}
+                <div className="w-80 border-l border-cyan-500/20 bg-black/30 backdrop-blur-sm p-4 overflow-auto">
+                  <AIModelPanel
+                    onModelChange={handleModelChange}
+                    onQualityChange={handleQualityChange}
+                    onGenerate={handleGenerate}
+                    isGenerating={isGenerating}
+                    progress={generationProgress}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }

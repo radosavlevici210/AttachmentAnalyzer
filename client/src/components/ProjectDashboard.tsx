@@ -35,10 +35,11 @@ export default function ProjectDashboard({ onProjectSelect, onCreateProject }: P
 
   const deleteProjectMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest(`/api/projects/${id}`, {
+      const response = await fetch(`/api/projects/${id}`, {
         method: 'DELETE',
       });
-      return response;
+      if (!response.ok) throw new Error('Failed to delete project');
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
@@ -51,14 +52,15 @@ export default function ProjectDashboard({ onProjectSelect, onCreateProject }: P
 
   const createProjectMutation = useMutation({
     mutationFn: async (projectData: { name: string; type: string; settings?: any }) => {
-      const response = await apiRequest('/api/projects', {
+      const response = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(projectData),
       });
-      return response;
+      if (!response.ok) throw new Error('Failed to create project');
+      return response.json();
     },
-    onSuccess: (newProject) => {
+    onSuccess: (newProject: Project) => {
       queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
       setShowNewProjectDialog(false);
       toast({
