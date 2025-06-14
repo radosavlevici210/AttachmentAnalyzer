@@ -12,11 +12,14 @@ export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
   name: text("name").notNull(),
-  type: text("type").notNull(), // 'movie', 'music', 'voice', 'analysis'
+  type: text("type").notNull(), // 'movie', 'music', 'voice', 'analysis', 'album', 'series'
   status: text("status").notNull().default('idle'), // 'idle', 'processing', 'completed', 'error'
   content: jsonb("content"), // stores the input content (script, lyrics, etc.)
   settings: jsonb("settings"), // stores generation settings
   output: jsonb("output"), // stores generated content URLs/data
+  duration: integer("duration"), // total duration in seconds
+  quality: text("quality"), // '8k', '4k', 'imax', 'hd'
+  genre: text("genre"), // music/movie genre
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

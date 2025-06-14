@@ -69,6 +69,14 @@ export class MemStorage implements IStorage {
       id,
       createdAt: now,
       updatedAt: now,
+      output: null,
+      content: insertProject.content || null,
+      settings: insertProject.settings || null,
+      status: insertProject.status || 'idle',
+      duration: insertProject.duration || null,
+      quality: insertProject.quality || null,
+      genre: insertProject.genre || null,
+      userId: insertProject.userId ?? null,
     };
     this.projects.set(id, project);
     return project;
@@ -107,6 +115,10 @@ export class MemStorage implements IStorage {
       ...insertGeneration, 
       id,
       createdAt: new Date(),
+      result: insertGeneration.result || null,
+      status: insertGeneration.status || 'pending',
+      duration: insertGeneration.duration || null,
+      projectId: insertGeneration.projectId || null,
     };
     this.generations.set(id, generation);
     return generation;
