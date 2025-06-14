@@ -1,18 +1,13 @@
 import OpenAI from "openai";
 
-// Production OpenAI configuration with proper error handling
-let openai: OpenAI | null = null;
+// Unlimited Production OpenAI configuration - No restrictions
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY!,
+  timeout: 120000, // Extended timeout for unlimited generation
+  maxRetries: 5, // Increased retries for reliability
+});
 
-// Initialize OpenAI only if API key is available
-if (process.env.OPENAI_API_KEY) {
-  openai = new OpenAI({ 
-    apiKey: process.env.OPENAI_API_KEY,
-    timeout: 60000, // 60 second timeout for production
-    maxRetries: 3,
-  });
-} else {
-  console.warn('OpenAI API key not configured. AI features will be limited.');
-}
+console.log('🚀 OpenAI API configured - Unlimited AI features enabled!');
 
 export interface MovieGenerationRequest {
   script: string;
@@ -55,6 +50,95 @@ export interface BatchGenerationRequest {
   };
 }
 
+// Unlimited batch processing function
+export async function processBatchGeneration(request: BatchGenerationRequest): Promise<{
+  results: Array<{
+    id: string;
+    type: string;
+    status: 'completed' | 'failed';
+    result?: any;
+    error?: string;
+    processingTime: number;
+  }>;
+  batchStats: {
+    totalProcessed: number;
+    successful: number;
+    failed: number;
+    totalTime: number;
+    averageTime: number;
+  };
+}> {
+  const startTime = Date.now();
+  const results: Array<{
+    id: string;
+    type: string;
+    status: 'completed' | 'failed';
+    result?: any;
+    error?: string;
+    processingTime: number;
+  }> = [];
+
+  // Process all projects with unlimited parallel processing
+  const processPromises = request.projects.map(async (project) => {
+    const projectStartTime = Date.now();
+    try {
+      let result: any;
+      
+      switch (project.type) {
+        case 'movie':
+          result = await generateMovie(project.content);
+          break;
+        case 'music':
+          result = await generateMusic(project.content);
+          break;
+        case 'voice':
+          result = await generateVoice(project.content);
+          break;
+        case 'analysis':
+          result = await analyzeContent(project.content);
+          break;
+        default:
+          throw new Error(`Unsupported project type: ${project.type}`);
+      }
+
+      return {
+        id: project.id,
+        type: project.type,
+        status: 'completed' as const,
+        result,
+        processingTime: Date.now() - projectStartTime
+      };
+    } catch (error) {
+      return {
+        id: project.id,
+        type: project.type,
+        status: 'failed' as const,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        processingTime: Date.now() - projectStartTime
+      };
+    }
+  });
+
+  // Wait for all projects to complete with unlimited concurrency
+  const processedResults = await Promise.all(processPromises);
+  results.push(...processedResults);
+
+  const totalTime = Date.now() - startTime;
+  const successful = results.filter(r => r.status === 'completed').length;
+  const failed = results.filter(r => r.status === 'failed').length;
+
+  return {
+    results,
+    batchStats: {
+      totalProcessed: results.length,
+      successful,
+      failed,
+      totalTime,
+      averageTime: results.length > 0 ? totalTime / results.length : 0
+    }
+  };
+}
+
 export async function generateMovie(request: MovieGenerationRequest): Promise<{
   videoUrl: string;
   audioUrl: string;
@@ -72,9 +156,6 @@ export async function generateMovie(request: MovieGenerationRequest): Promise<{
   metadata: any;
 }> {
   try {
-    if (!openai) {
-      throw new Error('OpenAI API key not configured. Please provide an API key to use AI features.');
-    }
 
     const prompt = `Create a professional ${request.quality} quality cinematic video production plan for unlimited creation:
 
@@ -187,9 +268,6 @@ export async function generateMusic(request: MusicGenerationRequest): Promise<{
   metadata: any;
 }> {
   try {
-    if (!openai) {
-      throw new Error('OpenAI API key not configured. Please provide an API key to use AI features.');
-    }
 
     const prompt = `Create a professional music production plan for unlimited creation with ${request.audioMastering} mastering:
 
@@ -224,7 +302,7 @@ Respond in JSON format with:
   "audioEffects": "Effects chain details"
 }`;
 
-    const response = await openai!.chat.completions.create({
+    const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
@@ -407,9 +485,7 @@ Respond in JSON format with the following structure:
 }`;
     }
 
-    if (!openai) {
-      throw new Error('OpenAI API key not configured. Please provide an API key to use AI features.');
-    }
+
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -462,16 +538,10 @@ export async function generateVoice(request: VoiceGenerationRequest): Promise<{
   };
 }> {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OpenAI API key not configured');
-    }
 
-    if (!openai) {
-      throw new Error('OpenAI API key not configured. Please provide an API key to use AI features.');
-    }
 
-    // Use OpenAI's TTS API for real voice generation
-    const response = await openai!.audio.speech.create({
+    // Use OpenAI's TTS API for unlimited voice generation
+    const response = await openai.audio.speech.create({
       model: "tts-1-hd",
       voice: request.voice as any || "alloy",
       input: request.text,
