@@ -471,7 +471,7 @@ export async function generateVoice(request: VoiceGenerationRequest): Promise<{
     }
 
     // Use OpenAI's TTS API for real voice generation
-    const response = await openai.audio.speech.create({
+    const response = await openai!.audio.speech.create({
       model: "tts-1-hd",
       voice: request.voice as any || "alloy",
       input: request.text,
