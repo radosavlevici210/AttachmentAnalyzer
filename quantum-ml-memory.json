@@ -1,0 +1,143 @@
+{
+  "models": {
+    "movie": {
+      "type": "movie",
+      "patterns": {
+        "0.0-37-create-short": {
+          "input": "Create a short film about AI learning",
+          "output": {
+            "scenes": [
+              {
+                "title": "Genesis of Intelligence",
+                "description": "The scene opens with a close-up of binary code running down a screen, gradually zooming out to reveal a dimly lit room filled with servers, sparking curiosity and intrigue as we witness the birth of AI.",
+                "duration": 15,
+                "visualStyle": "Cyberpunk aesthetic with high contrast and neon lighting",
+                "cameraWork": "Slow zoom-out, macro shots"
+              },
+              {
+                "title": "Learning Process",
+                "description": "The process of the AI learning is depicted via a montage of vibrant graphics and dynamic animations showing neural networks forming and adapting.",
+                "duration": 20,
+                "visualStyle": "Dynamic motion graphics and high-energy animations",
+                "cameraWork": "Fast-paced montage with digital overlays"
+              },
+              {
+                "title": "Moment of Awareness",
+                "description": "The AI achieves a moment of self-awareness, symbolized by the visualization of interconnected data points forming a virtual human face.",
+                "duration": 15,
+                "visualStyle": "Minimalist and surreal imagery",
+                "cameraWork": "360-degree camera rotation around the virtual face"
+              },
+              {
+                "title": "Integration",
+                "description": "The final scene serves as a metaphor for AI and human synergy, featuring a real person interacting seamlessly with holographic AI projections in a cityscape.",
+                "duration": 10,
+                "visualStyle": "Mixed reality visual with realistic CG elements",
+                "cameraWork": "Steadicam shot with seamless transitions between real and virtual"
+              }
+            ],
+            "visualEffects": "Extensive use of CGI for digital landscapes, neural networks, and virtual human conceptualization. Motion tracking for realistic integration of CGI in live-action scenes.",
+            "colorGrading": "Teal and orange color scheme with selective desaturation to heighten artificiality; high contrast yet with soft highlights for a cinematic texture.",
+            "audioDesign": "Immersive soundscapes employing Dolby Atmos for a 3D auditory experience, focused on the contrast between mechanical and natural sounds.",
+            "musicComposition": "Futuristic and electronic score using synthesizers and orchestral elements to convey the evolving emotions of the AI learning process.",
+            "technicalSpecs": {
+              "resolution": "4K",
+              "frameRate": "24fps",
+              "colorSpace": "Rec. 2020",
+              "audioChannels": "Dolby Atmos 7.1.4"
+            }
+          },
+          "quality": 0.7,
+          "context": {
+            "keywords": [
+              "create",
+              "short",
+              "film",
+              "about",
+              "learning"
+            ],
+            "length": 37,
+            "hasNumbers": false,
+            "sentiment": 0
+          },
+          "uses": 1
+        }
+      },
+      "trainingCount": 1,
+      "accuracy": 0.114,
+      "isReady": false
+    },
+    "music": {
+      "type": "music",
+      "patterns": {},
+      "trainingCount": 0,
+      "accuracy": 0.1,
+      "isReady": false
+    },
+    "voice": {
+      "type": "voice",
+      "patterns": {},
+      "trainingCount": 0,
+      "accuracy": 0.1,
+      "isReady": false
+    },
+    "analysis": {
+      "type": "analysis",
+      "patterns": {},
+      "trainingCount": 0,
+      "accuracy": 0.1,
+      "isReady": false
+    }
+  },
+  "trainingData": [
+    {
+      "input": "Create a short film about AI learning",
+      "output": {
+        "scenes": [
+          {
+            "title": "Genesis of Intelligence",
+            "description": "The scene opens with a close-up of binary code running down a screen, gradually zooming out to reveal a dimly lit room filled with servers, sparking curiosity and intrigue as we witness the birth of AI.",
+            "duration": 15,
+            "visualStyle": "Cyberpunk aesthetic with high contrast and neon lighting",
+            "cameraWork": "Slow zoom-out, macro shots"
+          },
+          {
+            "title": "Learning Process",
+            "description": "The process of the AI learning is depicted via a montage of vibrant graphics and dynamic animations showing neural networks forming and adapting.",
+            "duration": 20,
+            "visualStyle": "Dynamic motion graphics and high-energy animations",
+            "cameraWork": "Fast-paced montage with digital overlays"
+          },
+          {
+            "title": "Moment of Awareness",
+            "description": "The AI achieves a moment of self-awareness, symbolized by the visualization of interconnected data points forming a virtual human face.",
+            "duration": 15,
+            "visualStyle": "Minimalist and surreal imagery",
+            "cameraWork": "360-degree camera rotation around the virtual face"
+          },
+          {
+            "title": "Integration",
+            "description": "The final scene serves as a metaphor for AI and human synergy, featuring a real person interacting seamlessly with holographic AI projections in a cityscape.",
+            "duration": 10,
+            "visualStyle": "Mixed reality visual with realistic CG elements",
+            "cameraWork": "Steadicam shot with seamless transitions between real and virtual"
+          }
+        ],
+        "visualEffects": "Extensive use of CGI for digital landscapes, neural networks, and virtual human conceptualization. Motion tracking for realistic integration of CGI in live-action scenes.",
+        "colorGrading": "Teal and orange color scheme with selective desaturation to heighten artificiality; high contrast yet with soft highlights for a cinematic texture.",
+        "audioDesign": "Immersive soundscapes employing Dolby Atmos for a 3D auditory experience, focused on the contrast between mechanical and natural sounds.",
+        "musicComposition": "Futuristic and electronic score using synthesizers and orchestral elements to convey the evolving emotions of the AI learning process.",
+        "technicalSpecs": {
+          "resolution": "4K",
+          "frameRate": "24fps",
+          "colorSpace": "Rec. 2020",
+          "audioChannels": "Dolby Atmos 7.1.4"
+        }
+      },
+      "type": "movie",
+      "timestamp": 1749898221978,
+      "quality": 0.7
+    }
+  ],
+  "lastSaved": 1749898221979
+}

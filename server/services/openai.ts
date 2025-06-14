@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { quantumML } from "./quantum-ml-simple.js";
+import { productionOptimizer } from "./production-optimizer.js";
 
 // Production OpenAI configuration with Quantum ML integration
 const openai = new OpenAI({ 
@@ -156,15 +157,7 @@ export async function generateMovie(request: MovieGenerationRequest): Promise<{
   }>;
   metadata: any;
 }> {
-  try {
-    // First try quantum ML generation
-    const quantumResult = await quantumML.generateWithQuantumML('movie', request.script);
-    if (quantumResult) {
-      console.log('🚀 Generated movie using Quantum ML - API independent!');
-      return quantumResult;
-    }
-
-    // Fall back to OpenAI with learning
+  return await productionOptimizer.generateWithFallback('movie', request.script, async () => {
     const prompt = `Create a professional ${request.quality} quality cinematic video production plan:
 
 Script: ${request.script}
@@ -253,9 +246,7 @@ Respond in JSON format with:
       ],
       metadata: result,
     };
-  } catch (error) {
-    throw new Error(`Failed to generate movie: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
+  });
 }
 
 export async function generateMusic(request: MusicGenerationRequest): Promise<{
@@ -278,15 +269,7 @@ export async function generateMusic(request: MusicGenerationRequest): Promise<{
   };
   metadata: any;
 }> {
-  try {
-    // First try quantum ML generation
-    const quantumResult = await quantumML.generateWithQuantumML('music', request.lyrics);
-    if (quantumResult) {
-      console.log('🚀 Generated music using Quantum ML - API independent!');
-      return quantumResult;
-    }
-
-    // Fall back to OpenAI with learning
+  return await productionOptimizer.generateWithFallback('music', request.lyrics, async () => {
     const prompt = `Create a professional music production plan with ${request.audioMastering} mastering:
 
 Lyrics: ${request.lyrics}
@@ -406,9 +389,7 @@ Respond in JSON format with:
       },
       metadata: result,
     };
-  } catch (error) {
-    throw new Error(`Failed to generate music: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
+  });
 }
 
 export async function analyzeContent(request: AnalysisRequest): Promise<{
