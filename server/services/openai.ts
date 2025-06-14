@@ -1,13 +1,14 @@
 import OpenAI from "openai";
+import { quantumML } from "./quantum-ml-simple.js";
 
-// Unlimited Production OpenAI configuration - No restrictions
+// Production OpenAI configuration with Quantum ML integration
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY!,
-  timeout: 120000, // Extended timeout for unlimited generation
-  maxRetries: 5, // Increased retries for reliability
+  timeout: 120000,
+  maxRetries: 5,
 });
 
-console.log('🚀 OpenAI API configured - Unlimited AI features enabled!');
+console.log('🚀 OpenAI API configured with Quantum ML learning system enabled!');
 
 export interface MovieGenerationRequest {
   script: string;
