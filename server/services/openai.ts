@@ -1,14 +1,16 @@
 import OpenAI from "openai";
 
 // Production OpenAI configuration with proper error handling
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY,
-  timeout: 60000, // 60 second timeout for production
-  maxRetries: 3,
-});
+let openai: OpenAI | null = null;
 
-// Validate API key on startup
-if (!process.env.OPENAI_API_KEY) {
+// Initialize OpenAI only if API key is available
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({ 
+    apiKey: process.env.OPENAI_API_KEY,
+    timeout: 60000, // 60 second timeout for production
+    maxRetries: 3,
+  });
+} else {
   console.warn('OpenAI API key not configured. AI features will be limited.');
 }
 
@@ -70,6 +72,10 @@ export async function generateMovie(request: MovieGenerationRequest): Promise<{
   metadata: any;
 }> {
   try {
+    if (!openai) {
+      throw new Error('OpenAI API key not configured. Please provide an API key to use AI features.');
+    }
+
     const prompt = `Create a professional ${request.quality} quality cinematic video production plan for unlimited creation:
 
 Script: ${request.script}
@@ -181,6 +187,10 @@ export async function generateMusic(request: MusicGenerationRequest): Promise<{
   metadata: any;
 }> {
   try {
+    if (!openai) {
+      throw new Error('OpenAI API key not configured. Please provide an API key to use AI features.');
+    }
+
     const prompt = `Create a professional music production plan for unlimited creation with ${request.audioMastering} mastering:
 
 Lyrics: ${request.lyrics}
@@ -214,7 +224,7 @@ Respond in JSON format with:
   "audioEffects": "Effects chain details"
 }`;
 
-    const response = await openai.chat.completions.create({
+    const response = await openai!.chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
@@ -397,6 +407,10 @@ Respond in JSON format with the following structure:
 }`;
     }
 
+    if (!openai) {
+      throw new Error('OpenAI API key not configured. Please provide an API key to use AI features.');
+    }
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
@@ -450,6 +464,10 @@ export async function generateVoice(request: VoiceGenerationRequest): Promise<{
   try {
     if (!process.env.OPENAI_API_KEY) {
       throw new Error('OpenAI API key not configured');
+    }
+
+    if (!openai) {
+      throw new Error('OpenAI API key not configured. Please provide an API key to use AI features.');
     }
 
     // Use OpenAI's TTS API for real voice generation
