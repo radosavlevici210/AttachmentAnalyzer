@@ -1,52 +1,38 @@
-#!/usr/bin/env node
-
+import { build } from 'vite';
+import { build as esbuild } from 'esbuild';
 import { execSync } from 'child_process';
-import { writeFileSync, copyFileSync, existsSync } from 'fs';
 
-// Build the frontend
-console.log('Building frontend...');
-execSync('vite build', { stdio: 'inherit' });
+async function buildForNetlify() {
+  console.log('🚀 Building for Netlify production deployment...');
+  
+  try {
+    // Build frontend with Vite
+    console.log('📦 Building frontend...');
+    await build();
+    
+    // Build Netlify function
+    console.log('⚡ Building Netlify functions...');
+    await esbuild({
+      entryPoints: ['netlify/functions/api.ts'],
+      bundle: true,
+      platform: 'node',
+      target: 'node18',
+      format: 'esm',
+      outdir: 'netlify/functions',
+      outExtension: { '.js': '.mjs' },
+      external: ['@neondatabase/serverless'],
+      banner: {
+        js: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+      }
+    });
+    
+    console.log('✅ Netlify build completed successfully!');
+    console.log('🌐 Ready for deployment at astonishing-gelato-055adf.netlify.app');
+    
+  } catch (error) {
+    console.error('❌ Build failed:', error);
+    process.exit(1);
+  }
+}
 
-// Build Netlify functions
-console.log('Building Netlify functions...');
-execSync('esbuild netlify/functions/api.ts --platform=node --packages=external --bundle --format=esm --outdir=netlify/functions --external:@netlify/functions --external:pg-native --external:cpu-features --external:@mapbox/node-pre-gyp --external:fsevents --minify', { stdio: 'inherit' });
-
-// Copy _redirects to publish directory
-const redirects = `/api/* /.netlify/functions/api/:splat 200
-/* /index.html 200`;
-writeFileSync('dist/public/_redirects', redirects);
-
-// Copy _headers to publish directory
-const headers = `# Cache static assets
-/static/*
-  Cache-Control: public, max-age=31536000, immutable
-
-# Cache JS and CSS files
-/*.js
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.css
-  Cache-Control: public, max-age=31536000, immutable
-
-# Cache fonts
-/*.woff2
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.woff
-  Cache-Control: public, max-age=31536000, immutable
-
-# Security headers
-/*
-  X-Frame-Options: DENY
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-
-# API headers
-/api/*
-  Cache-Control: no-cache, no-store, must-revalidate
-  X-Content-Type-Options: nosniff`;
-
-writeFileSync('dist/public/_headers', headers);
-
-console.log('Netlify build complete with headers and redirects!');
+buildForNetlify();
