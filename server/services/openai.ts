@@ -1,9 +1,16 @@
 import OpenAI from "openai";
 
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+// Production OpenAI configuration with proper error handling
 const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key"
+  apiKey: process.env.OPENAI_API_KEY,
+  timeout: 60000, // 60 second timeout for production
+  maxRetries: 3,
 });
+
+// Validate API key on startup
+if (!process.env.OPENAI_API_KEY) {
+  console.warn('OpenAI API key not configured. AI features will be limited.');
+}
 
 export interface MovieGenerationRequest {
   script: string;
@@ -347,7 +354,7 @@ Respond in JSON format with the following structure:
       insights: result.insights || {},
     };
   } catch (error) {
-    throw new Error(`Failed to analyze content: ${error.message}`);
+    throw new Error(`Failed to analyze content: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 

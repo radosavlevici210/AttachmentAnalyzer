@@ -1,62 +1,55 @@
 import { Handler, HandlerEvent, HandlerContext, HandlerResponse } from '@netlify/functions';
 import express from 'express';
 import { registerRoutes } from '../../server/routes';
+import serverless from 'serverless-http';
 
+// Create Express app
 const app = express();
+
+// Add JSON parsing middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Add CORS middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 // Register all routes
 registerRoutes(app);
 
+// Create serverless handler
+const serverlessHandler = serverless(app);
+
 export const handler: Handler = async (event: HandlerEvent, context: HandlerContext): Promise<HandlerResponse> => {
   try {
-    const { path, httpMethod, headers, body } = event;
-    
-    // Remove /api prefix for internal routing
-    const cleanPath = path.replace(/^\/api/, '') || '/';
-    
-    return new Promise<HandlerResponse>((resolve, reject) => {
-      const req = {
-        method: httpMethod,
-        url: cleanPath,
-        headers,
-        body: body ? JSON.parse(body) : undefined,
-      } as any;
+    // Modify the path to remove the /.netlify/functions/api prefix
+    const modifiedEvent = {
+      ...event,
+      path: event.path.replace(/^\/\.netlify\/functions\/api/, '') || '/',
+    };
 
-      const res = {
-        statusCode: 200,
-        headers: {},
-        body: '',
-        status: function(code: number) {
-          this.statusCode = code;
-          return this;
-        },
-        json: function(data: any) {
-          this.headers['Content-Type'] = 'application/json';
-          this.body = JSON.stringify(data);
-          return this;
-        },
-        send: function(data: any) {
-          this.body = typeof data === 'string' ? data : JSON.stringify(data);
-          return this;
-        },
-        end: function() {
-          resolve({
-            statusCode: this.statusCode,
-            headers: this.headers,
-            body: this.body,
-          });
-        }
-      } as any;
-
-      // Handle the request through Express
-      app(req, res);
-    });
+    const result = await serverlessHandler(modifiedEvent, context);
+    return result as HandlerResponse;
   } catch (error) {
+    console.error('Netlify function error:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal server error' }),
+      body: JSON.stringify({ 
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      }),
       headers: {
         'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
       },
     };
   }

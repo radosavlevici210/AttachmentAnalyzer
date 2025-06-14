@@ -1,0 +1,166 @@
+10:00:51 AM: build-image version: b825674d3cfa85ad94bf5a8a254e528c1b2a912f (noble)
+10:00:51 AM: buildbot version: b825674d3cfa85ad94bf5a8a254e528c1b2a912f
+10:00:51 AM: Fetching cached dependencies
+10:00:51 AM: Failed to fetch cache, continuing with build
+10:00:51 AM: Starting to prepare the repo for build
+10:00:51 AM: No cached dependencies found. Cloning fresh repo
+10:00:51 AM: git clone --filter=blob:none https://github.com/radosavlevici210/AttachmentAnalyzer
+10:00:51 AM: Preparing Git Reference refs/heads/main
+10:00:52 AM: Custom publish path detected. Proceeding with the specified path: 'dist/public'
+10:00:52 AM: Custom functions path detected. Proceeding with the specified path: 'netlify/functions'
+10:00:52 AM: Custom edge functions path detected. Proceeding with the specified path: 'netlify/edge-functions'
+10:00:53 AM: Starting to install dependencies
+10:00:53 AM: Python version set to 3.13.3
+10:00:53 AM: Ruby version set to 3.4.3
+10:00:53 AM: Go version set to 1.24.3
+10:00:53 AM: Using PHP version 8.3
+10:00:54 AM: Downloading and installing node v20.19.2...
+10:00:54 AM: Downloading https://nodejs.org/dist/v20.19.2/node-v20.19.2-linux-x64.tar.xz...
+10:00:55 AM: Computing checksum with sha256sum
+10:00:55 AM: Checksums matched!
+10:00:57 AM: Now using node v20.19.2 (npm v10.8.2)
+10:00:57 AM: Enabling Node.js Corepack
+10:00:57 AM: Started restoring cached build plugins
+10:00:57 AM: Finished restoring cached build plugins
+10:00:57 AM: Started restoring cached corepack dependencies
+10:00:57 AM: Finished restoring cached corepack dependencies
+10:00:57 AM: No npm workspaces detected
+10:00:57 AM: Started restoring cached node modules
+10:00:57 AM: Finished restoring cached node modules
+10:00:57 AM: Installing npm packages using npm version 10.8.2
+10:01:00 AM: npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+10:01:00 AM: npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+10:01:03 AM: added 730 packages in 6s
+10:01:03 AM: npm packages installed
+10:01:03 AM: Successfully installed dependencies
+10:01:03 AM: Starting build script
+10:01:04 AM: Detected 1 framework(s)
+10:01:04 AM: "vite" at version "5.4.14"
+10:01:04 AM: Section completed: initializing
+Building
+Complete
+10:01:05 AM: Netlify Build                                                 
+10:01:05 AM: ────────────────────────────────────────────────────────────────
+10:01:05 AM: ​
+10:01:05 AM: ❯ Version
+10:01:05 AM:   @netlify/build 33.4.6
+10:01:05 AM: ​
+10:01:05 AM: ❯ Flags
+10:01:05 AM:   accountId: 68415787a7e845d454d5cf13
+10:01:05 AM:   baseRelDir: true
+10:01:05 AM:   buildId: 684d3a428ff5010008331030
+10:01:05 AM:   deployId: 684d3a428ff5010008331032
+10:01:06 AM: ​
+10:01:06 AM: ❯ Current directory
+10:01:06 AM:   /opt/build/repo
+10:01:06 AM: ​
+10:01:06 AM: ❯ Config file
+10:01:06 AM:   /opt/build/repo/netlify.toml
+10:01:06 AM: ​
+10:01:06 AM: ❯ Context
+10:01:06 AM:   production
+10:01:06 AM: ​
+10:01:06 AM: ❯ Installing extensions
+10:01:06 AM:    - neon
+10:01:47 AM: ​
+10:01:47 AM: ❯ Loading extensions
+10:01:47 AM:    - neon
+10:01:48 AM: ​
+10:01:48 AM: build.command from netlify.toml                               
+10:01:48 AM: ────────────────────────────────────────────────────────────────
+10:01:48 AM: ​
+10:01:48 AM: $ npm run build
+10:01:48 AM: > rest-express@1.0.0 build
+10:01:48 AM: > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+10:01:48 AM: vite v5.4.14 building for production...
+10:01:48 AM: transforming...
+10:01:49 AM: Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+10:01:49 AM:   npx update-browserslist-db@latest
+10:01:49 AM:   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+10:01:51 AM: ✓ 1735 modules transformed.
+10:01:51 AM: rendering chunks...
+10:01:51 AM: computing gzip size...
+10:01:51 AM: ../dist/public/index.html                   0.63 kB │ gzip:   0.38 kB
+10:01:51 AM: ../dist/public/assets/index-C0twY7x6.css   67.82 kB │ gzip:  12.01 kB
+10:01:51 AM: ../dist/public/assets/index-CfLyN51o.js   478.41 kB │ gzip: 145.39 kB
+10:01:51 AM: ✓ built in 2.74s
+10:01:51 AM:   dist/index.js  22.8kb
+10:01:51 AM: ⚡ Done in 5ms
+10:01:51 AM: ​
+10:01:51 AM: (build.command completed in 3s)
+10:01:51 AM: ​
+10:01:51 AM: Functions bundling                                            
+10:01:51 AM: ────────────────────────────────────────────────────────────────
+10:01:51 AM: ​
+10:01:51 AM: Packaging Functions from netlify/functions directory:
+10:01:51 AM:  - api.ts
+10:01:51 AM: ​
+10:01:52 AM: ​
+10:01:52 AM: (Functions bundling completed in 408ms)
+10:01:52 AM: ​
+10:01:52 AM: Edge Functions bundling                                       
+10:01:52 AM: ────────────────────────────────────────────────────────────────
+10:01:52 AM: ​
+10:01:52 AM: Packaging Edge Functions from netlify/edge-functions directory:
+10:01:52 AM:  - cache-headers
+10:01:53 AM: ​
+10:01:53 AM: (Edge Functions bundling completed in 1.4s)
+10:01:53 AM: ​
+10:02:00 AM: (Netlify Build completed in 54.6s)
+10:02:04 AM: Section completed: building
+10:02:25 AM: Finished processing build request in 1m34.274s
+Deploying
+Complete
+10:01:53 AM: Deploy site                                                   
+10:01:53 AM: ────────────────────────────────────────────────────────────────
+10:01:53 AM: ​
+10:01:53 AM: Starting to deploy site from 'dist/public'
+10:01:53 AM: Calculating files to upload
+10:01:53 AM: 3 new file(s) to upload
+10:01:53 AM: 1 new function(s) to upload
+10:02:00 AM: Section completed: deploying
+10:02:00 AM: Site deploy was successfully initiated
+10:02:00 AM: ​
+10:02:00 AM: (Deploy site completed in 6.6s)
+10:02:00 AM: ​
+10:02:00 AM: A "_headers" file is present in the repository but is missing in the publish directory "dist/public".
+10:02:00 AM: ​
+10:02:00 AM: A "_redirects" file is present in the repository but is missing in the publish directory "dist/public".
+Cleanup
+Complete
+10:02:00 AM: Netlify Build Complete                                        
+10:02:00 AM: ────────────────────────────────────────────────────────────────
+10:02:00 AM: ​
+10:02:01 AM: Caching artifacts
+10:02:01 AM: Started saving node modules
+10:02:01 AM: Finished saving node modules
+10:02:01 AM: Started saving build plugins
+10:02:01 AM: Finished saving build plugins
+10:02:01 AM: Started saving go cache
+10:02:02 AM: Finished saving go cache
+10:02:02 AM: Started saving python cache
+10:02:03 AM: Finished saving python cache
+10:02:03 AM: Started saving ruby cache
+10:02:04 AM: Finished saving ruby cache
+10:02:04 AM: Started saving corepack cache
+10:02:04 AM: Finished saving corepack cache
+10:02:04 AM: Started saving emacs cask dependencies
+10:02:04 AM: Finished saving emacs cask dependencies
+10:02:04 AM: Started saving maven dependencies
+10:02:04 AM: Finished saving maven dependencies
+10:02:04 AM: Started saving boot dependencies
+10:02:04 AM: Finished saving boot dependencies
+10:02:04 AM: Started saving rust rustup cache
+10:02:04 AM: Finished saving rust rustup cache
+10:02:04 AM: Build script success
+10:02:24 AM: Uploading Cache of size 347.5MB
+10:02:25 AM: Section completed: cleanup
+Post-processing
+Complete
+10:02:00 AM: Starting post processing
+10:02:00 AM: Skipping form detection
+10:02:00 AM: Post processing - header rules
+10:02:00 AM: Post processing - redirect rules
+10:02:00 AM: Post processing done
+10:02:00 AM: Section completed: postprocessing
+10:02:01 AM: Site is live ✨
