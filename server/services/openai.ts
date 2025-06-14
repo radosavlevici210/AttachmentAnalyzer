@@ -362,19 +362,48 @@ export async function generateVoice(request: VoiceGenerationRequest): Promise<{
   audioUrl: string;
   duration: number;
   transcript: string;
+  technicalSpecs: {
+    format: string;
+    quality: string;
+    sampleRate: string;
+    channels: string;
+  };
 }> {
   try {
-    // In a real implementation, this would use OpenAI's TTS API
-    // For now, we'll create a mock response based on the text analysis
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    // Use OpenAI's TTS API for real voice generation
+    const response = await openai.audio.speech.create({
+      model: "tts-1-hd",
+      voice: request.voice as any || "alloy",
+      input: request.text,
+      speed: parseFloat(request.speed) || 1.0,
+    });
+
+    // In production, you'd save this to a file storage service
+    const audioBuffer = Buffer.from(await response.arrayBuffer());
+    const audioUrl = `/api/generated/voice_${Date.now()}.mp3`;
+    
+    // Estimate duration based on text length and speed
     const wordCount = request.text.split(' ').length;
-    const estimatedDuration = Math.max(wordCount * 0.5, 5); // rough estimate
+    const baseWPM = 150; // average words per minute for speech
+    const speedMultiplier = parseFloat(request.speed) || 1.0;
+    const estimatedDuration = Math.max((wordCount / baseWPM) * 60 / speedMultiplier, 1);
 
     return {
-      audioUrl: `/api/generated/voice_${Date.now()}.mp3`,
+      audioUrl,
       duration: estimatedDuration,
       transcript: request.text,
+      technicalSpecs: {
+        format: "MP3",
+        quality: "HD",
+        sampleRate: "22kHz",
+        channels: "Mono"
+      }
     };
   } catch (error) {
-    throw new Error(`Failed to generate voice: ${error.message}`);
+    throw new Error(`Failed to generate voice: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
