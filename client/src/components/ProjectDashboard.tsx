@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { apiRequest } from '@/lib/queryClient';
 import { Project } from '@/../../shared/schema';
 import { useToast } from '@/hooks/use-toast';
+import VideoPlayer from './VideoPlayer';
 
 interface ProjectDashboardProps {
   onProjectSelect?: (project: Project) => void;
@@ -25,6 +26,8 @@ export default function ProjectDashboard({ onProjectSelect, onCreateProject }: P
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedProjects, setSelectedProjects] = useState<number[]>([]);
   const [showNewProjectDialog, setShowNewProjectDialog] = useState(false);
+  const [videoPlayerOpen, setVideoPlayerOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string; project: any } | null>(null);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -125,6 +128,31 @@ export default function ProjectDashboard({ onProjectSelect, onCreateProject }: P
       description: `Applied ${action} to ${selectedProjects.length} projects.`,
     });
     setSelectedProjects([]);
+  };
+
+  const handlePlayProject = (project: Project) => {
+    if (project.type === 'movie' && project.output?.videoUrl) {
+      setSelectedVideo({
+        url: project.output.videoUrl,
+        title: project.name,
+        project: project
+      });
+      setVideoPlayerOpen(true);
+    } else if (project.type === 'music' && project.output?.audioUrl) {
+      // Handle music playback
+      const audio = new Audio(project.output.audioUrl);
+      audio.play().catch(console.error);
+      toast({
+        title: "Playing Music",
+        description: `Now playing: ${project.name}`,
+      });
+    } else {
+      toast({
+        title: "No Media Available",
+        description: "This project doesn't have playable content yet.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {

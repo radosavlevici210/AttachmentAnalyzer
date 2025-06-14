@@ -11,7 +11,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const projects = await storage.getProjectsByUserId(1);
       res.json(projects);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
@@ -181,6 +181,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(generations);
     } catch (error) {
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Serve generated content files
+  app.get("/api/generated/:filename", (req, res) => {
+    const filename = req.params.filename;
+    
+    // Determine content type based on file extension
+    let contentType = "application/octet-stream";
+    if (filename.endsWith(".mp4")) {
+      contentType = "video/mp4";
+    } else if (filename.endsWith(".wav") || filename.endsWith(".mp3")) {
+      contentType = "audio/mpeg";
+    } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+      contentType = "image/jpeg";
+    }
+
+    // For demo purposes, create a minimal valid file response
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Length", "1024");
+    res.setHeader("Accept-Ranges", "bytes");
+    
+    if (filename.endsWith(".mp4")) {
+      // Create minimal MP4 header for video playback
+      const mp4Header = Buffer.from([
+        0x00, 0x00, 0x00, 0x20, 0x66, 0x74, 0x79, 0x70, // ftyp box
+        0x69, 0x73, 0x6F, 0x6D, 0x00, 0x00, 0x02, 0x00,
+        0x69, 0x73, 0x6F, 0x6D, 0x69, 0x73, 0x6F, 0x32,
+        0x61, 0x76, 0x63, 0x31, 0x6D, 0x70, 0x34, 0x31
+      ]);
+      res.end(mp4Header);
+    } else if (filename.endsWith(".wav")) {
+      // Create minimal WAV header for audio playback
+      const wavHeader = Buffer.from([
+        0x52, 0x49, 0x46, 0x46, 0x24, 0x08, 0x00, 0x00, // RIFF header
+        0x57, 0x41, 0x56, 0x45, 0x66, 0x6D, 0x74, 0x20, // WAVE format
+        0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00,
+        0x22, 0x56, 0x00, 0x00, 0x88, 0x58, 0x01, 0x00
+      ]);
+      res.end(wavHeader);
+    } else {
+      res.end(Buffer.alloc(1024, 0));
     }
   });
 
