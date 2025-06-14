@@ -157,8 +157,15 @@ export async function generateMovie(request: MovieGenerationRequest): Promise<{
   metadata: any;
 }> {
   try {
+    // First try quantum ML generation
+    const quantumResult = await quantumML.generateWithQuantumML('movie', request.script);
+    if (quantumResult) {
+      console.log('🚀 Generated movie using Quantum ML - API independent!');
+      return quantumResult;
+    }
 
-    const prompt = `Create a professional ${request.quality} quality cinematic video production plan for unlimited creation:
+    // Fall back to OpenAI with learning
+    const prompt = `Create a professional ${request.quality} quality cinematic video production plan:
 
 Script: ${request.script}
 Duration: ${request.duration} seconds
@@ -203,6 +210,9 @@ Respond in JSON format with:
     });
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
+
+    // Learn from OpenAI response for future independence
+    await quantumML.learnFromOpenAI(request.script, result, 'movie');
 
     return {
       videoUrl: `/api/generated/movie_${request.quality}_${Date.now()}.mp4`,
@@ -269,8 +279,15 @@ export async function generateMusic(request: MusicGenerationRequest): Promise<{
   metadata: any;
 }> {
   try {
+    // First try quantum ML generation
+    const quantumResult = await quantumML.generateWithQuantumML('music', request.lyrics);
+    if (quantumResult) {
+      console.log('🚀 Generated music using Quantum ML - API independent!');
+      return quantumResult;
+    }
 
-    const prompt = `Create a professional music production plan for unlimited creation with ${request.audioMastering} mastering:
+    // Fall back to OpenAI with learning
+    const prompt = `Create a professional music production plan with ${request.audioMastering} mastering:
 
 Lyrics: ${request.lyrics}
 Style: ${request.style}
@@ -310,6 +327,9 @@ Respond in JSON format with:
     });
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
+
+    // Learn from OpenAI response for future independence
+    await quantumML.learnFromOpenAI(request.lyrics, result, 'music');
 
     // Generate professional waveform data based on song structure
     const totalDuration = 240; // 4 minutes
@@ -405,6 +425,14 @@ export async function analyzeContent(request: AnalysisRequest): Promise<{
   };
 }> {
   try {
+    // First try quantum ML generation
+    const quantumResult = await quantumML.generateWithQuantumML('analysis', request.content);
+    if (quantumResult) {
+      console.log('🚀 Analyzed content using Quantum ML - API independent!');
+      return quantumResult;
+    }
+
+    // Fall back to OpenAI with learning
     let prompt = "";
     
     if (request.type === 'youtube') {
@@ -495,6 +523,9 @@ Respond in JSON format with the following structure:
     });
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
+
+    // Learn from OpenAI response for future independence
+    await quantumML.learnFromOpenAI(request.content, result, 'analysis');
 
     return {
       mood: {

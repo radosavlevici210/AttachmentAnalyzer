@@ -161,9 +161,11 @@ class QuantumMLEngine {
     
     const keywords1 = new Set(context1.keywords || []);
     const keywords2 = new Set(context2.keywords || []);
-    const intersection = new Set([...keywords1].filter(x => keywords2.has(x)));
-    const union = new Set([...keywords1, ...keywords2]);
-    const keywordSim = union.size > 0 ? intersection.size / union.size : 0;
+    const keywords1Array = Array.from(keywords1);
+    const keywords2Array = Array.from(keywords2);
+    const intersection = keywords1Array.filter(x => keywords2.has(x));
+    const union = [...keywords1Array, ...keywords2Array.filter(x => !keywords1.has(x))];
+    const keywordSim = union.length > 0 ? intersection.length / union.length : 0;
 
     return (sentimentSim * 0.4 + lengthSim * 0.3 + keywordSim * 0.3);
   }

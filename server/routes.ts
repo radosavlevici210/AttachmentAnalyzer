@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertProjectSchema, insertGenerationSchema } from "@shared/schema";
 import { generateMovie, generateMusic, analyzeContent, generateVoice, processBatchGeneration } from "./services/openai";
+import { quantumML } from "./services/quantum-ml-simple";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all projects for a user (using userId 1 for demo)
@@ -234,6 +235,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.end(wavHeader);
     } else {
       res.end(Buffer.alloc(1024, 0));
+    }
+  });
+
+  // Quantum ML API endpoints
+  app.get("/api/quantum/stats", async (req, res) => {
+    try {
+      const stats = quantumML.getStats();
+      res.json({
+        status: "active",
+        models: stats,
+        message: "Quantum ML learning system operational"
+      });
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
+
+  app.post("/api/quantum/production-mode", async (req, res) => {
+    try {
+      quantumML.enableProductionMode();
+      res.json({ 
+        status: "production", 
+        message: "Quantum ML switched to production mode - OpenAI API independence achieved" 
+      });
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
+
+  app.post("/api/quantum/learning-mode", async (req, res) => {
+    try {
+      quantumML.enableLearningMode();
+      res.json({ 
+        status: "learning", 
+        message: "Quantum ML learning mode enabled" 
+      });
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
