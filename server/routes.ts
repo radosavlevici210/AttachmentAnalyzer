@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertProjectSchema, insertGenerationSchema } from "@shared/schema";
-import { generateMovie, generateMusic, analyzeContent, generateVoice } from "./services/openai";
+import { generateMovie, generateMusic, analyzeContent, generateVoice, processBatchGeneration } from "./services/openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all projects for a user (using userId 1 for demo)
@@ -25,7 +25,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       res.json(project);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error instanceof Error ? error.message : 'Validation error' });
     }
   });
 
@@ -39,7 +39,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(project);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Server error' });
     }
   });
 
@@ -54,11 +54,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(project);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Update error' });
     }
   });
 
-  // Generate movie content
+  // Generate movie content - UNLIMITED
   app.post("/api/generate/movie", async (req, res) => {
     try {
       const { projectId, ...movieRequest } = req.body;
@@ -74,7 +74,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: 'processing',
       });
 
-      // Generate movie (this would be async in production)
+      // Generate movie with unlimited capabilities
       const result = await generateMovie(movieRequest);
       
       // Update generation with result
@@ -92,11 +92,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(result);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Movie generation error' });
     }
   });
 
-  // Generate music content
+  // Generate music content - UNLIMITED
   app.post("/api/generate/music", async (req, res) => {
     try {
       const { projectId, ...musicRequest } = req.body;
@@ -125,22 +125,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(result);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Music generation error' });
     }
   });
 
-  // Analyze content
+  // Analyze content - UNLIMITED
   app.post("/api/analyze", async (req, res) => {
     try {
       const analysisRequest = req.body;
       const result = await analyzeContent(analysisRequest);
       res.json(result);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Analysis error' });
     }
   });
 
-  // Generate voice
+  // Generate voice - UNLIMITED
   app.post("/api/generate/voice", async (req, res) => {
     try {
       const { projectId, ...voiceRequest } = req.body;
@@ -169,7 +169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(result);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Voice generation error' });
     }
   });
 
@@ -180,7 +180,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const generations = await storage.getGenerationsByProjectId(projectId);
       res.json(generations);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Generations fetch error' });
+    }
+  });
+
+  // Unlimited batch processing endpoint
+  app.post("/api/generate/batch", async (req, res) => {
+    try {
+      const batchRequest = req.body;
+      const result = await processBatchGeneration(batchRequest);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Batch processing failed' });
     }
   });
 
