@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Film, Music, Mic, BarChart3, Download, Share2, Grid, Zap, Settings, Home } from 'lucide-react';
+import { Film, Music, Mic, BarChart3, Download, Share2, Grid, Zap, Settings, Home, Brain } from 'lucide-react';
 import MovieProduction from '@/components/MovieProduction';
 import MusicProduction from '@/components/MusicProduction';
 import VoiceGeneration from '@/components/VoiceGeneration';
@@ -118,6 +118,16 @@ export default function Studio() {
               className={`w-12 h-12 p-0 ${activeView === 'dashboard' ? 'bg-cyan-500/20 text-cyan-400' : 'text-gray-400 hover:text-cyan-400'}`}
             >
               <Home className="w-5 h-5" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.location.href = '/quantum-ml'}
+              className="w-12 h-12 p-0 text-gray-400 hover:text-purple-400"
+              title="Quantum ML System"
+            >
+              <Brain className="w-5 h-5" />
             </Button>
             <Button
               variant={activeView === 'production' ? 'default' : 'ghost'}
