@@ -24,7 +24,7 @@ export default function AIAnalysis() {
   const form = useForm<AnalysisFormData>({
     resolver: zodResolver(analysisFormSchema),
     defaultValues: {
-      content: "",
+      content: "https://www.youtube.com/watch?v=EN_ydVxeyNQ",
       type: "youtube",
     },
   });
